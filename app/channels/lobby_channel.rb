@@ -15,6 +15,10 @@ class LobbyChannel < ApplicationCable::Channel
     remove_user_from_lobby(params[:user_id])
   end
 
+  def load_game(payload)
+    ActionCable.server.broadcast(@lobby_id, { action: 'LOAD_GAME', payload: { game_name: payload['route_name'] }})
+  end
+
   private
 
   def lobby_users
