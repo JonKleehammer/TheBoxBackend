@@ -25,11 +25,11 @@ class LobbyChannel < ApplicationCable::Channel
     @@lobby_users ||= {}
   end
 
-  def add_user_to_lobby(newUser)
-    puts "ADD #{newUser} to lobby"
+  def add_user_to_lobby(new_user)
+    puts "ADD #{new_user} to lobby"
     lobby_users[@lobby_id] ||= []
-    if lobby_users[@lobby_id].none? { |user| user['user_id'] == newUser['user_id'] }
-      lobby_users[@lobby_id] << newUser
+    if lobby_users[@lobby_id].none? { |user| user['user_id'] == new_user['user_id'] }
+      lobby_users[@lobby_id] << new_user
       broadcast_player_list
     end
   end
