@@ -25,7 +25,7 @@ class LobbyChannel < ApplicationCable::Channel
     puts "ADD #{newUser} to lobby"
     lobby_users[@lobby_id] ||= []
     if lobby_users[@lobby_id].none? { |user| user['user_id'] == newUser['user_id'] }
-      lobby_users[@lobby_id] << user
+      lobby_users[@lobby_id] << newUser
       broadcast_player_list
     end
   end
