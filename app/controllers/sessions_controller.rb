@@ -1,13 +1,21 @@
 class SessionsController < ApplicationController
   def create
     puts "LOGGING IN!"
-    username = params[:username]
-    lobby = params[:lobby] || generate_lobby_code
+    lobby_code = params[:lobby] || generate_lobby_code
+    # lobby should be found or be created if it doesn't exist
+    lobby = Lobby.find_by(lobby_code: lobby_code)
+    lobby ||= Lobby.create(username: , lobby_code: lobby_code)
+    # if lobby does exist already we should check that it isn't full
+    if lobby.at_capacity?
+      puts "LOBBY IS ALREADY FULL"
+    else
+      puts "We can fit this new player in!"
+    end
+    # user should be created everytime they join
+    player = Player.create(username: params[:username])
+    player.connect_to_lobby(lobby)
 
-    guid = SecureRandom.uuid
-    session[:guid] = guid
-
-    render json: { user_id: guid, user: username, lobby: lobby}
+    render json: { player_id: player.player_id, user: player.username, lobby: lobby_code }
   end
 
   private

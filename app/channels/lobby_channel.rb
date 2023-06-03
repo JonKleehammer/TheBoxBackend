@@ -1,6 +1,6 @@
 class LobbyChannel < ApplicationCable::Channel
   def subscribed
-    puts "CLIENT CONNECTED"
+    puts "CLIENT CONNECTED TO LOBBY"
     @lobby_id = "LobbyChannel-#{params[:lobby_code]}"
     stream_from @lobby_id
 
