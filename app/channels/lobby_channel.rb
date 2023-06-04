@@ -1,46 +1,42 @@
 class LobbyChannel < ApplicationCable::Channel
+  before_subscribe :set_params
+
   def subscribed
     puts "CLIENT CONNECTED TO LOBBY"
-    @lobby_id = "LobbyChannel-#{params[:lobby_code]}"
-    stream_from @lobby_id
-
-    ActionCable.server.broadcast(@lobby_id, "New User Joined: #{params[:user_id]}")
-    user_date = params.slice(:user_id, :username).to_h
-    add_user_to_lobby(user_date)
+    stream_from @channel
+    ActionCable.server.broadcast(@channel, "New User Joined: #{params[:player_id]}")
+    add_player_to_lobby(@player_id)
   end
 
   def unsubscribed
     # Any cleanup needed when channel is unsubscribed
     puts "CLIENT DISCONNECTED"
-    remove_user_from_lobby(params[:user_id])
+    remove_player_from_lobby(@player_id)
   end
 
   def load_game(payload)
-    ActionCable.server.broadcast(@lobby_id, { action: 'LOAD_GAME', payload: { game_name: payload['route_name'] }})
+    ActionCable.server.broadcast(@channel, { action: 'LOAD_GAME', payload: { game_name: payload['route_name'] }})
   end
 
   private
 
-  def lobby_users
-    @@lobby_users ||= {}
+  def set_params
+    @lobby = Lobby.find_or_create_by(lobby_code: :lobby_code, channel: "LobbyChannel-#{params[:lobby_code]}")
+    @channel = @lobby.channel
+    @player_id = params[:player_id]
   end
 
-  def add_user_to_lobby(new_user)
-    puts "ADD #{new_user} to lobby"
-    lobby_users[@lobby_id] ||= []
-    if lobby_users[@lobby_id].none? { |user| user['user_id'] == new_user['user_id'] }
-      lobby_users[@lobby_id] << new_user
-      broadcast_player_list
-    end
+  def add_player_to_lobby(player_id)
+    @lobby.add_player(player_id)
+    # broadcast_player_list
   end
 
-  def remove_user_from_lobby(user_id)
-    lobby_users[@lobby_id].reject! { |user| user['user_id'] === user_id } if lobby_users[@lobby_id]
-    broadcast_player_list
+  def remove_player_from_lobby(player_id)
+    @lobby.remove_player(player_id)
+    # broadcast_player_list
   end
 
   def broadcast_player_list
-    players = lobby_users[@lobby_id] || []
-    ActionCable.server.broadcast(@lobby_id, { action: 'UPDATE_PLAYERS', payload: players })
+    # ActionCable.server.broadcast(@channel, { action: 'UPDATE_PLAYERS', payload: @lobby.players })
   end
 end
