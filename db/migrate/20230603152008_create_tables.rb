@@ -17,6 +17,7 @@ class CreateTables < ActiveRecord::Migration[7.0]
       t.bigint :lobby_id, null: false
       t.bigint :player_id, null: false
       t.boolean :leader, null: false
+      t.boolean :ready, default: false, null: false
       t.timestamps
     end
 

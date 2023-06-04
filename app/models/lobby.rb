@@ -35,7 +35,7 @@ class Lobby < ApplicationRecord
   end
 
   def get_player_list
-    players.select(:player_id, :username, :leader).as_json
+    players.select(:player_id, :username, :leader, :ready).as_json
   end
 
   def broadcast_update_players
