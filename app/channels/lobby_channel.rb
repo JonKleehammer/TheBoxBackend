@@ -16,8 +16,9 @@ class LobbyChannel < ApplicationCable::Channel
 
   def load_game(payload)
     @lobby.update(status: 'CLOSED')
-    
-    ActionCable.server.broadcast(@channel, { action: 'LOAD_GAME', payload: { game_name: payload['game_name'] }})
+    game_name = payload['game_name']
+    game = Game.create(lobby_id: @lobby.lobby_id, game_name: game_name, settings: {} )
+    ActionCable.server.broadcast(@channel, { action: 'LOAD_GAME', payload: { game_id: game.game_id, game_name: game.game_name }})
   end
 
   private
