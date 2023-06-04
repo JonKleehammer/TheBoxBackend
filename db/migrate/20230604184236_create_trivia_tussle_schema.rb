@@ -8,6 +8,8 @@ class CreateTriviaTussleSchema < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
+    add_foreign_key 'trivia_tussle.games', :lobbies, column: :lobby_id, primary_key: :lobby_id
+
     create_table 'trivia_tussle.player_states', id: :serial, primary_key: :state_id do |t|
       t.bigint :game_id
       t.bigint :player_id
@@ -40,13 +42,5 @@ class CreateTriviaTussleSchema < ActiveRecord::Migration[7.0]
     add_foreign_key 'trivia_tussle.question_to_topic', 'trivia_tussle.topics', column: :topic_id, primary_key: :topic_id
     add_foreign_key 'trivia_tussle.question_to_topic', 'trivia_tussle.questions', column: :question_id, primary_key: :question_id
 
-    create_table 'trivia_tussle.game_to_lobby', id: :serial, primary_key: :gtl do |t|
-      t.bigint :game_id, null: false
-      t.bigint :lobby_id, null: false
-      t.timestamps
-    end
-
-    add_foreign_key 'trivia_tussle.game_to_lobby', 'trivia_tussle.games', column: :game_id, primary_key: :game_id
-    add_foreign_key 'trivia_tussle.game_to_lobby', :lobbies, column: :lobby_id, primary_key: :lobby_id
   end
 end
