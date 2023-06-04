@@ -1,5 +1,4 @@
 class Lobby < ApplicationRecord
-
   self.primary_key = :lobby_id
   has_many :player_to_lobby
   has_many :players, through: :player_to_lobby
@@ -21,7 +20,8 @@ class Lobby < ApplicationRecord
   def add_player(player_id)
     ActiveRecord::Base.transaction do
       first_player = players.empty?
-      PlayerToLobby.find_or_create_by(lobby_id: lobby_id, player_id: player_id, leader: first_player)
+      new_player = PlayerToLobby.find_or_create_by(lobby_id: lobby_id, player_id: player_id)
+      self.update(leader_id: new_player.player_id) if first_player
       broadcast_update_players
     end
   end
@@ -29,13 +29,16 @@ class Lobby < ApplicationRecord
   def remove_player(player_id)
     ActiveRecord::Base.transaction do
       PlayerToLobby.where(lobby_id: lobby_id, player_id: player_id).destroy_all
-      player_to_lobby.each_with_index { |ptl, index| ptl.update(leader: index.zero?) }
+      self.update(leader_id: players.first.player_id)
       broadcast_update_players
     end
   end
 
   def get_player_list
-    players.select(:player_id, :username, :leader, :ready).as_json
+    player_list = players.select(:player_id, :username, :ready).as_json
+    player_list.each do |player|
+      player['leader'] = leader_id == player['player_id']
+    end
   end
 
   def broadcast_update_players

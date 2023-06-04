@@ -15,7 +15,9 @@ class LobbyChannel < ApplicationCable::Channel
   end
 
   def load_game(payload)
-    ActionCable.server.broadcast(@channel, { action: 'LOAD_GAME', payload: { game_name: payload['route_name'] }})
+    @lobby.update(status: 'CLOSED')
+
+    ActionCable.server.broadcast(@channel, { action: 'LOAD_GAME', payload: { game_name: payload['game_name'] }})
   end
 
   private
@@ -28,15 +30,9 @@ class LobbyChannel < ApplicationCable::Channel
 
   def add_player_to_lobby(player_id)
     @lobby.add_player(player_id)
-    # broadcast_player_list
   end
 
   def remove_player_from_lobby(player_id)
     @lobby.remove_player(player_id)
-    # broadcast_player_list
-  end
-
-  def broadcast_player_list
-    # ActionCable.server.broadcast(@channel, { action: 'UPDATE_PLAYERS', payload: @lobby.players })
   end
 end
