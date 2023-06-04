@@ -29,7 +29,8 @@ class Lobby < ApplicationRecord
   def remove_player(player_id)
     ActiveRecord::Base.transaction do
       PlayerToLobby.where(lobby_id: lobby_id, player_id: player_id).destroy_all
-      self.update(leader_id: players.first.player_id)
+      new_leader_id = players.first.nil? ? nil : players.first.player_id
+      self.update(leader_id: new_leader_id)
       broadcast_update_players
     end
   end
