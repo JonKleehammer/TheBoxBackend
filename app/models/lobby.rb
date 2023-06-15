@@ -18,6 +18,7 @@ class Lobby < ApplicationRecord
   end
 
   def add_player(player_id)
+    return if status != 'OPEN' # If the lobby isn't OPEN, we should lock the player list
     ActiveRecord::Base.transaction do
       first_player = players.empty?
       new_player = PlayerToLobby.find_or_create_by(lobby_id: lobby_id, player_id: player_id)
@@ -27,6 +28,7 @@ class Lobby < ApplicationRecord
   end
 
   def remove_player(player_id)
+    return if status != 'OPEN' # If the lobby isn't OPEN, we should lock the player list
     ActiveRecord::Base.transaction do
       PlayerToLobby.where(lobby_id: lobby_id, player_id: player_id).destroy_all
       new_leader_id = players.first.nil? ? nil : players.first.player_id

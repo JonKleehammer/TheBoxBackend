@@ -24,7 +24,8 @@ class LobbyChannel < ApplicationCable::Channel
   private
 
   def set_params
-    @lobby = Lobby.find_or_create_by(lobby_code: :lobby_code, channel: "LobbyChannel-#{params[:lobby_code]}")
+    @lobby_code = params[:lobby_code]
+    @lobby = Lobby.find_or_create_by(lobby_code: @lobby_code, channel: "LobbyChannel-#{@lobby_code}")
     @channel = @lobby.channel
     @player_id = params[:player_id]
   end
